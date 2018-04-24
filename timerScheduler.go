@@ -55,8 +55,8 @@ func InitGrapeScheduler(t time.Duration, ars bool) {
 	}
 
 	chkTick := t
-	if chkTick <= (time.Microsecond * 100) {
-		chkTick = time.Duration(time.Microsecond * 100)
+	if chkTick <= (time.Millisecond * 100) {
+		chkTick = time.Duration(time.Millisecond * 100)
 	}
 
 	GScheduler = &GrapeScheduler{
