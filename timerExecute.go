@@ -4,11 +4,13 @@
 package grapeTimer
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"reflect"
+	"runtime"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -84,19 +86,47 @@ func reflectFunc(fn GrapeExecFn, args ...interface{}) (cb *grapeCallFunc, err er
 	return
 }
 
+func PanicTrace(kb int) []byte {
+	s := []byte("/src/runtime/panic.go")
+	e := []byte("\ngoroutine ")
+
+	line := []byte("\n")
+	stack := make([]byte, kb<<10) //4KB
+	length := runtime.Stack(stack, true)
+	start := bytes.Index(stack, s)
+	stack = stack[start:length]
+	start = bytes.Index(stack, line) + 1
+	stack = stack[start:]
+	end := bytes.LastIndex(stack, line)
+	if end != -1 {
+		stack = stack[:end]
+	}
+	end = bytes.Index(stack, e)
+	if end != -1 {
+		stack = stack[:end]
+	}
+	stack = bytes.TrimRight(stack, "\n")
+	return stack
+}
+
 func callFunc(timer *grapeCallFunc) {
-	// 此处锁一下，防止各种异常
-	timer.mux.Lock()
-	defer timer.mux.Unlock()
+	// 修正BUG，防止各种异常
+	defer func() {
+		if p := recover(); p != nil {
+			stacks := PanicTrace(4)
+			panic := fmt.Sprintf("recover panics: %v call:%v", p, string(stacks))
+			fmt.Printf(panic)
+		}
+	}()
 
 	if timer.status >= 1 && SkipWaitTask {
 		return
 	}
 
 	// 否则只计数不处理
-	timer.status++
+	atomic.AddInt32(&timer.status, 1)
 	reflect.ValueOf(timer.exeCall).Call(timer.args) // 正确调用
-	timer.status--
+	atomic.AddInt32(&timer.status, -1)
 }
 
 /// 直接创建一个timer 内部函数
