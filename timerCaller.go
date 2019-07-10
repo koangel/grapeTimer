@@ -56,7 +56,7 @@ func NewTimeDataLoop(data string, count int, fn GrapeExecFn, args ...interface{}
 	nowId := GScheduler.autoId
 	GScheduler.autoId++
 	newTimer := newTimer(nowId,
-		timerTickMode,
+		timerDateMode,
 		count,
 		data,
 		fn, args...)
