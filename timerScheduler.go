@@ -5,6 +5,7 @@ package grapeTimer
 
 import (
 	"container/list"
+	"fmt"
 	"log"
 	"runtime"
 	"sync"
@@ -26,6 +27,11 @@ var UseAsyncExec bool = true
 // 如果上次任务未执行完成，默认方式还是跳过
 // 默认跳过,单协程模式下，不处理
 var SkipWaitTask bool = true
+
+// 对于默认Panic Recover函数处理
+var RecoverPanic = func(err error) {
+	fmt.Println(err.Error())
+}
 
 // 默认的通用时区字符串，通过修改他会更改分析后的日期结果
 // 默认为上海时区
