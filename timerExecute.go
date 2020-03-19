@@ -115,7 +115,11 @@ func callFunc(timer *grapeCallFunc) {
 		if p := recover(); p != nil {
 			stacks := PanicTrace(4)
 			panic := fmt.Sprintf("recover panics: %v call:%v", p, string(stacks))
-			fmt.Printf(panic)
+			if RecoverPanic != nil {
+				RecoverPanic(fmt.Errorf(panic))
+			} else {
+				fmt.Println(string(panic))
+			}
 		}
 	}()
 
