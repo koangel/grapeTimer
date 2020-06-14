@@ -9,6 +9,7 @@ import (
 	"log"
 	"runtime"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -33,6 +34,8 @@ var RecoverPanic = func(err error) {
 	fmt.Println(err.Error())
 }
 
+var createGuid = func() int64 { return atomic.AddInt64(&GScheduler.autoId, 1) }
+
 // 默认的通用时区字符串，通过修改他会更改分析后的日期结果
 // 默认为上海时区
 var LocationFormat = "Asia/Shanghai"
@@ -43,7 +46,7 @@ type GrapeScheduler struct {
 	schedulerTimer *time.Ticker
 
 	timerContiner *list.List
-	autoId        int // 自动计数的Id
+	autoId        int64 // 自动计数的Id
 
 	listLocker sync.Mutex
 }
@@ -76,8 +79,29 @@ func InitGrapeScheduler(t time.Duration, ars bool) {
 	//go GScheduler.procAddTimer()
 }
 
+func PeekNextId() int64 {
+	if GScheduler == nil {
+		panic("Scheduler must init...")
+	}
+
+	return GScheduler.autoId + 1
+}
+
+func SetCreateGUID(fn func() int64) {
+	createGuid = fn
+}
+
+func SetGuidSeed(seed int64) error {
+	if GScheduler == nil {
+		return fmt.Errorf("Scheduler must init...")
+	}
+
+	GScheduler.autoId = seed
+	return nil
+}
+
 // 停止这个timer
-func (c *GrapeScheduler) StopTimer(Id int) {
+func (c *GrapeScheduler) StopTimer(Id int64) {
 	c.listLocker.Lock()
 	defer c.listLocker.Unlock()
 
@@ -95,8 +119,8 @@ func (c *GrapeScheduler) StopTimer(Id int) {
 }
 
 // 列出全部timer的下一次执行周期
-func (c *GrapeScheduler) List() map[int]string {
-	var temp map[int]string = map[int]string{}
+func (c *GrapeScheduler) List() map[int64]string {
+	var temp = map[int64]string{}
 
 	c.listLocker.Lock()
 	defer c.listLocker.Unlock()
@@ -113,7 +137,7 @@ func (c *GrapeScheduler) List() map[int]string {
 	return temp
 }
 
-func (c *GrapeScheduler) String(id int) string {
+func (c *GrapeScheduler) String(id int64) string {
 	c.listLocker.Lock()
 	defer c.listLocker.Unlock()
 
@@ -131,7 +155,7 @@ func (c *GrapeScheduler) String(id int) string {
 	return ""
 }
 
-func (c *GrapeScheduler) Format(id int, layout string) string {
+func (c *GrapeScheduler) Format(id int64, layout string) string {
 	c.listLocker.Lock()
 	defer c.listLocker.Unlock()
 
@@ -149,7 +173,7 @@ func (c *GrapeScheduler) Format(id int, layout string) string {
 	return ""
 }
 
-func (c *GrapeScheduler) ToJson(id int) string {
+func (c *GrapeScheduler) ToJson(id int64) string {
 	c.listLocker.Lock()
 	defer c.listLocker.Unlock()
 
