@@ -38,7 +38,7 @@ type grapeCallFunc struct {
 }
 
 type GrapeTimer struct {
-	Id        int    `json:"TimerId"`
+	Id        int64  `json:"TimerId"`
 	NextTime  int64  `json:"nextUnix"`
 	RunMode   int    `json:"Mode"`
 	TimeData  string `json:"timeData"`
@@ -134,7 +134,7 @@ func callFunc(timer *grapeCallFunc) {
 }
 
 /// 直接创建一个timer 内部函数
-func newTimer(Id, Mode, Count int, timeData string, fn GrapeExecFn, args ...interface{}) *GrapeTimer {
+func newTimer(Id int64, Mode, Count int, timeData string, fn GrapeExecFn, args ...interface{}) *GrapeTimer {
 
 	cbo, err := reflectFunc(fn, args...)
 	if err != nil {

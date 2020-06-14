@@ -2,6 +2,7 @@ package grapeTimer
 
 import (
 	"fmt"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -65,6 +66,35 @@ func Test_JsonSaveAll(t *testing.T) {
 	}
 
 	fmt.Print(Json)
+}
+
+func Test_CreateGUIDFnc(t *testing.T) {
+	InitGrapeScheduler(time.Second, false)
+	autoId := int64(10222)
+	SetCreateGUID(func() int64 {
+		return atomic.AddInt64(&autoId, 1)
+	})
+
+	nextId := autoId + 1
+	eqNextId := NewTickerLoop(1000, -1, func() {
+		fmt.Println("ticker 1 sec")
+	})
+
+	if nextId != eqNextId {
+		t.Fail()
+	}
+
+	fmt.Println(nextId, eqNextId)
+
+	SetGuidSeed(nextId)
+	nextId = PeekNextId()
+	eqNextId = NewTickerLoop(1000, -1, func() {
+		fmt.Println("ticker 1 sec")
+	})
+	if nextId != eqNextId {
+		t.Fail()
+	}
+
 }
 
 func Benchmark_Parallel(b *testing.B) {

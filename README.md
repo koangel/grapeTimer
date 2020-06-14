@@ -21,13 +21,17 @@ grapeTimer填坑完毕的库，已做测试。
 - 快速创建调度器
 - 可控的调度器时间粒度
 - 高性能的并发调度
-- 支持任意类型函数的任意参数[自动推导参数以及类型]
+- 支持任意类型函数的任意参数`[自动推导参数以及类型]`
 - 时间周期，次数多模式可控`[支持每天、每周、每月]`
 - 可以获取下一次执行时间的字符串`[支持自定义格式]`
 - 可选择对调度器保存或内存执行
-- 生成可保存的调度器字符串并反向分析他生成调度器[保存到Json再通过Json创建Timer]
+- 生成可保存的调度器字符串并反向分析他生成调度器`[保存到Json再通过Json创建Timer]`
 - 不依赖第三方库
 - 处理Panic打印相关的数据信息，用于记录崩溃原因
+- 通过atomic预测下一个ID`[该方法不适合并发场景，可能存在争抢ID错误的风险]`
+- 自定义起始TimerId的种子
+- 自定义TimerId的生成函数`[自生成ID请注意并发场景下的线程争抢]`
+- TimerId扩展为int64，支持大ID和CRC64ID生成器对应
 
 ## **简单测试**
 
@@ -45,6 +49,15 @@ go get -u github.com/koangel/grapeTimer
 ``` Go
 // 初始化一个1秒钟粒度的调度器，ars代表是否自动设置运行为并行模式
 grapeTimer.InitGrapeScheduler(1*time.Second, true)
+// 设置GUID种子
+grapeTimer.SetGuidSeed(1000)
+// 设置GUID生成函数
+autoId := int64(10222)
+grapeTimer.SetCreateGUID(func() int64 {
+	return atomic.AddInt64(&autoId,1)
+})
+// 获取但不增加下一个TimerId（预测函数，可能存在偏差，请自行管理）
+nextId := grapeTimer.PeekNextId()
 // 启动一个单次执行的调度器，1秒时间，基本tick单位为毫秒
 Id := grapeTimer.NewTickerOnce(1000, exec100,"exec100 this arg1",2000,float32(200.5))
 // 启动一个单次执行的调度器，1秒时间，基本tick单位为毫秒 (需要返回参数的代码)

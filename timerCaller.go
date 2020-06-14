@@ -7,15 +7,13 @@ import "strconv"
 
 // 以下函数均为自动ID
 // 间隔为毫秒 运行一个tick并返回一个Id
-func NewTickerOnce(tick int, fn GrapeExecFn, args ...interface{}) int {
+func NewTickerOnce(tick int, fn GrapeExecFn, args ...interface{}) int64 {
 	return NewTickerLoop(tick, LoopOnce, fn, args...)
 }
 
 // 通过json构造timer
-func NewFromJson(json string, fn GrapeExecFn, args ...interface{}) int {
-	nowId := GScheduler.autoId
-	GScheduler.autoId++
-
+func NewFromJson(json string, fn GrapeExecFn, args ...interface{}) int64 {
+	nowId := createGuid()
 	newTimer := newTimerFromJson(json, fn, args...)
 
 	// 覆盖Id
@@ -29,9 +27,8 @@ func NewFromJson(json string, fn GrapeExecFn, args ...interface{}) int {
 }
 
 // 循环可控版本
-func NewTickerLoop(tick, count int, fn GrapeExecFn, args ...interface{}) int {
-	nowId := GScheduler.autoId
-	GScheduler.autoId++
+func NewTickerLoop(tick, count int, fn GrapeExecFn, args ...interface{}) int64 {
+	nowId := createGuid()
 	newTimer := newTimer(nowId,
 		timerTickMode,
 		count,
@@ -48,13 +45,12 @@ func NewTickerLoop(tick, count int, fn GrapeExecFn, args ...interface{}) int {
 }
 
 // 格式分析时钟
-func NewTimeDataOnce(data string, fn GrapeExecFn, args ...interface{}) int {
+func NewTimeDataOnce(data string, fn GrapeExecFn, args ...interface{}) int64 {
 	return NewTimeDataLoop(data, LoopOnce, fn, args...)
 }
 
-func NewTimeDataLoop(data string, count int, fn GrapeExecFn, args ...interface{}) int {
-	nowId := GScheduler.autoId
-	GScheduler.autoId++
+func NewTimeDataLoop(data string, count int, fn GrapeExecFn, args ...interface{}) int64 {
+	nowId := createGuid()
 	newTimer := newTimer(nowId,
 		timerDateMode,
 		count,
@@ -68,24 +64,24 @@ func NewTimeDataLoop(data string, count int, fn GrapeExecFn, args ...interface{}
 	return nowId
 }
 
-func StopTimer(Id int) {
+func StopTimer(Id int64) {
 	GScheduler.StopTimer(Id)
 }
 
-func String(Id int) string {
+func String(Id int64) string {
 	return GScheduler.String(Id)
 }
 
-func Format(Id int, layout string) string {
+func Format(Id int64, layout string) string {
 	return GScheduler.Format(Id, layout)
 }
 
-func List() map[int]string {
+func List() map[int64]string {
 	return GScheduler.List()
 }
 
 // 所有的时间参数保存到JSON
-func ToJson(Id int) string {
+func ToJson(Id int64) string {
 	return GScheduler.ToJson(Id)
 }
 
