@@ -8,7 +8,8 @@
 ```
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/koangel/grapeTimer)](https://goreportcard.com/report/github.com/koangel/grapeTimer)  [![Build Status](https://secure.travis-ci.org/koangel/grapeTimer.png)](http://travis-ci.org/koangel/grapeTimer)
-
+[![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
+[![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 ---
 # **grapeTimer 时间调度器**
 
@@ -180,3 +181,13 @@ Id = grapeTimer.NewFromJson(jsonBody,"exec100Loop this arg1",2000,float32(200.5)
 ```
 2017-05-24 13:59:59 +0800 CST
 ```
+
+## **鸣谢(Thanks)**
+
+Use Jetbrains Ide for project
+
+[![saythanks](https://img.shields.io/badge/say-thanks-ff69b4.svg)](https://saythanks.io/to/kennethreitz)
+[![Generic badge](https://img.shields.io/badge/JetBrains-Goland-<COLOR>.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/JetBrains-CLion-<COLOR>.svg)](https://shields.io/)
+
+
