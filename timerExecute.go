@@ -35,6 +35,7 @@ type grapeCallFunc struct {
 	args    []reflect.Value
 	status  int32
 	mux     sync.Mutex
+	retry   int32
 }
 
 type GrapeTimer struct {
@@ -82,6 +83,7 @@ func reflectFunc(fn GrapeExecFn, args ...interface{}) (cb *grapeCallFunc, err er
 		exeCall: fn,
 		args:    in,
 		status:  0,
+		retry:   0,
 	}
 	return
 }
@@ -121,6 +123,16 @@ func callFunc(timer *grapeCallFunc) {
 				fmt.Println(string(panic))
 			}
 		}
+
+		atomic.AddInt32(&timer.status, -1)
+
+		if RestartTask {
+			if atomic.LoadInt32(&timer.retry) >= RetryCount {
+				atomic.StoreInt32(&timer.retry, 0)
+				return
+			}
+			callFunc(timer) // 再试一次
+		}
 	}()
 
 	if timer.status >= 1 && SkipWaitTask {
@@ -131,6 +143,7 @@ func callFunc(timer *grapeCallFunc) {
 	atomic.AddInt32(&timer.status, 1)
 	reflect.ValueOf(timer.exeCall).Call(timer.args) // 正确调用
 	atomic.AddInt32(&timer.status, -1)
+	atomic.StoreInt32(&timer.retry, 0)
 }
 
 /// 直接创建一个timer 内部函数

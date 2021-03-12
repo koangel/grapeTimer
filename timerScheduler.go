@@ -34,6 +34,12 @@ var RecoverPanic = func(err error) {
 	fmt.Println(err.Error())
 }
 
+// Panic任务自动重新执行
+var RestartTask = true
+
+// 重试次数
+var RetryCount int32 = 3
+
 var createGuid = func() int64 { return atomic.AddInt64(&GScheduler.autoId, 1) }
 
 // 默认的通用时区字符串，通过修改他会更改分析后的日期结果

@@ -122,6 +122,19 @@ grapeTimer.CDebugMode = true
 grapeTimer.LocationFormat = "Asia/Shanghai"
 // 开启异步调度模式，在此模式下 timer执行时会建立一个go，不会阻塞其他timer执行调度，建议开启
 grapeTimer.UseAsyncExec = true
+// 如果上次任务未执行完成，默认方式还是跳过
+// 默认跳过,单协程模式下，不处理
+var SkipWaitTask bool = true
+
+// 对于默认Panic Recover函数处理
+var RecoverPanic = func(err error) {
+	fmt.Println(err.Error())
+}
+
+// Panic任务自动重新执行
+var RestartTask = true
+// 重试次数
+var RetryCount int32 = 3
 ```
 
 ## **获取下一次执行的时间**
